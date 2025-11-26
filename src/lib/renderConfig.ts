@@ -79,11 +79,12 @@ export const SPRITE_ORDER = [
 // ============================================================================
 export const SPRITE_VERTICAL_OFFSETS: Record<string, number> = {
   // Single-tile buildings that need adjustment
-  park: 0.10,           // Small park - push down ~10%
-  police_station: 0.15, // Police station - push down more
-  school: 0.10,         // School - push down ~10%
+  park: 0.20,           // Small park - push down ~20%
+  park_large: 0.20,     // Large park - push down ~20%
+  police_station: 0.25, // Police station - push down more
+  school: 0.20,         // School - push down ~20%
   tennis: 0.10,         // Tennis court - push down ~10%
-  water_tower: -0.52,   // Water tower - push up ~20px
+  water_tower: -0.30,   // Water tower - push up ~12px
   // Add more as needed
 };
 

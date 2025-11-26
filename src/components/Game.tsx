@@ -1078,8 +1078,18 @@ function SpriteTestPanel({ onClose }: { onClose: () => void }) {
     const canvas = canvasRef.current;
     if (!canvas || !spriteSheet) return;
     
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { 
+      willReadFrequently: false,
+      alpha: true 
+    });
     if (!ctx) return;
+    
+    // High-DPI rendering for crisp quality
+    const dpr = window.devicePixelRatio || 1;
+    
+    // Improve image rendering quality for pixel art
+    ctx.imageSmoothingEnabled = false;
+    ctx.imageSmoothingQuality = 'high';
     
     // Grid setup - arrange sprites in rows of 5
     const cols = 5;
@@ -1092,8 +1102,17 @@ function SpriteTestPanel({ onClose }: { onClose: () => void }) {
     // Canvas size - account for sprite extending beyond base position
     const canvasWidth = cols * tileW * 2 + padding * 2;
     const canvasHeight = rows * (tileH * 3 + labelHeight) + padding * 2;
-    canvas.width = canvasWidth;
-    canvas.height = canvasHeight;
+    
+    // Set actual size in memory (scaled for device pixel ratio)
+    canvas.width = canvasWidth * dpr;
+    canvas.height = canvasHeight * dpr;
+    
+    // Scale the canvas back down using CSS
+    canvas.style.width = `${canvasWidth}px`;
+    canvas.style.height = `${canvasHeight}px`;
+    
+    // Scale the drawing context so everything draws at the correct size
+    ctx.scale(dpr, dpr);
     
     // Clear with dark background
     ctx.fillStyle = '#1a1a2e';
