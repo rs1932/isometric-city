@@ -82,6 +82,7 @@ export const SPRITE_VERTICAL_OFFSETS: Record<string, number> = {
   park: 0.10,           // Small park - push down ~10%
   police_station: 0.15, // Police station - push down more
   school: 0.10,         // School - push down ~10%
+  tennis: 0.10,         // Tennis court - push down ~10%
   // Add more as needed
 };
 
@@ -157,13 +158,6 @@ export function getSpriteCoords(
     col = index % SPRITE_SHEET.cols;
     row = Math.floor(index / SPRITE_SHEET.cols);
   }
-  
-  // #region agent log
-  const debugTypes = ['police_station', 'stadium', 'house_medium', 'house_small', 'water_tower', 'mansion'];
-  if (debugTypes.includes(buildingType)) {
-    fetch('http://127.0.0.1:7242/ingest/75839c3e-3c42-4523-859b-438c22b5f8b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'renderConfig.ts:getSpriteCoords',message:'Sprite coords 5x5 grid',data:{buildingType,spriteKey,index,col,row,tileWidth,tileHeight,cols:SPRITE_SHEET.cols,rows:SPRITE_SHEET.rows,sx:col*tileWidth,sy:row*tileHeight,sw:tileWidth,sh:tileHeight},timestamp:Date.now(),sessionId:'debug-session',runId:'5x5-fix'})}).catch(()=>{});
-  }
-  // #endregion
   
   // Use exact integer positions based on tile dimensions
   return {

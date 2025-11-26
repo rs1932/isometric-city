@@ -2182,13 +2182,6 @@ function CanvasIsometricGrid({ overlayMode, selectedTile, setSelectedTile }: {
           
           drawY = drawPosY + h - destHeight + verticalPush;
           
-          // #region agent log
-          const debugTypes = ['police_station', 'stadium', 'house_medium', 'house_small', 'water_tower', 'mansion', 'park_large', 'park'];
-          if (debugTypes.includes(buildingType)) {
-            fetch('http://127.0.0.1:7242/ingest/75839c3e-3c42-4523-859b-438c22b5f8b8',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Game.tsx:drawBuilding',message:'Draw with single+multi push',data:{buildingType,isMultiTile,destWidth,destHeight,drawX,drawY,drawPosY,verticalPush},timestamp:Date.now(),sessionId:'debug-session',runId:'single-push-fix'})}).catch(()=>{});
-          }
-          // #endregion
-          
           // Draw the sprite with correct aspect ratio
           ctx.drawImage(
             spriteSheet,

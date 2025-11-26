@@ -1034,11 +1034,11 @@ export function simulateTick(state: GameState): GameState {
         }
       }
 
-      // Random fire start
+      // Random fire start (very rare - approximately 1 fire per 50,000 building-ticks)
       if (state.disastersEnabled && !tile.building.onFire && 
           tile.building.type !== 'grass' && tile.building.type !== 'water' && 
           tile.building.type !== 'road' && tile.building.type !== 'tree' &&
-          Math.random() < 0.0001) {
+          Math.random() < 0.00002) {
         tile.building.onFire = true;
         tile.building.fireProgress = 0;
       }
@@ -1193,10 +1193,10 @@ function canPlaceMultiTileBuilding(
 }
 
 // Footprint helpers for organic growth and merging
-// IMPORTANT: Only allow consolidation of empty land (grass, empty, tree).
-// Do NOT include actual buildings - this prevents overlapping buildings bug
-// where partial overwrites leave orphaned tiles from other multi-tile buildings.
-const MERGEABLE_TILE_TYPES = new Set<BuildingType>(['grass', 'empty', 'tree']);
+// IMPORTANT: Only allow consolidation of truly empty land (grass, tree).
+// Do NOT include 'empty' tiles - those are placeholders for existing multi-tile buildings!
+// Including 'empty' would allow buildings to overlap with each other during evolution.
+const MERGEABLE_TILE_TYPES = new Set<BuildingType>(['grass', 'tree']);
 
 function isMergeableZoneTile(tile: Tile, zone: ZoneType, excludeTile?: { x: number; y: number }): boolean {
   // The tile being upgraded is always considered mergeable (it's the source of the evolution)
@@ -1208,8 +1208,8 @@ function isMergeableZoneTile(tile: Tile, zone: ZoneType, excludeTile?: { x: numb
   if (tile.zone !== zone) return false;
   if (tile.building.onFire) return false;
   if (tile.building.type === 'water' || tile.building.type === 'road') return false;
-  // Only allow merging grass, empty (placeholder from multi-tile buildings), and trees
-  // This prevents the overlapping buildings bug where existing buildings get partially overwritten
+  // Only allow merging grass and trees - truly unoccupied tiles
+  // 'empty' tiles are placeholders for multi-tile buildings and must NOT be merged
   return MERGEABLE_TILE_TYPES.has(tile.building.type);
 }
 

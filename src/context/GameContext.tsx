@@ -81,13 +81,11 @@ function loadGameState(): GameState | null {
           parsed.stats.money !== undefined &&
           parsed.stats.population !== undefined) {
         // Migrate park_medium to park_large
-        let migrated = false;
         if (parsed.grid) {
           for (let y = 0; y < parsed.grid.length; y++) {
             for (let x = 0; x < parsed.grid[y].length; x++) {
               if (parsed.grid[y][x]?.building?.type === 'park_medium') {
                 parsed.grid[y][x].building.type = 'park_large';
-                migrated = true;
               }
             }
           }
@@ -95,28 +93,11 @@ function loadGameState(): GameState | null {
         // Migrate selectedTool if it's park_medium
         if (parsed.selectedTool === 'park_medium') {
           parsed.selectedTool = 'park_large';
-          migrated = true;
         }
-        if (migrated) {
-          console.log('Migrated park_medium to park_large in saved game state');
-        }
-        console.log('Game state loaded successfully', { 
-          gridSize: parsed.gridSize, 
-          money: parsed.stats.money,
-          population: parsed.stats.population 
-        });
         return parsed as GameState;
       } else {
-        console.warn('Invalid game state in localStorage, clearing it', { 
-          hasGrid: !!parsed?.grid,
-          hasGridSize: !!parsed?.gridSize,
-          hasStats: !!parsed?.stats,
-          parsed 
-        });
         localStorage.removeItem(STORAGE_KEY);
       }
-    } else {
-      console.log('No saved game state found in localStorage');
     }
   } catch (e) {
     console.error('Failed to load game state:', e);
@@ -144,17 +125,10 @@ function saveGameState(state: GameState): void {
     
     // Check if data is too large (localStorage has ~5-10MB limit)
     if (serialized.length > 5 * 1024 * 1024) {
-      console.warn('Game state too large to save, skipping', { size: serialized.length });
       return;
     }
     
     localStorage.setItem(STORAGE_KEY, serialized);
-    console.log('Game state saved successfully', { 
-      gridSize: state.gridSize, 
-      money: state.stats.money,
-      population: state.stats.population,
-      size: serialized.length 
-    });
   } catch (e) {
     // Handle quota exceeded errors
     if (e instanceof DOMException && (e.code === 22 || e.code === 1014)) {
@@ -189,12 +163,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const saved = loadGameState();
     if (saved) {
-      console.log('Loading saved game state into component');
       skipNextSaveRef.current = true; // Set skip flag BEFORE updating state
       setState(saved);
       setHasExistingGame(true);
     } else {
-      console.log('No saved game found, using initial state');
       setHasExistingGame(false);
     }
     // Mark as loaded immediately - the skipNextSaveRef will handle skipping the first save
@@ -214,7 +186,6 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     
     if (skipNextSaveRef.current) {
       skipNextSaveRef.current = false;
-      console.log('Skipping save after initial load');
       lastSaveTimeRef.current = Date.now();
       return;
     }
@@ -260,16 +231,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         // Perform the save
         setIsSaving(true);
         try {
-          console.log('Auto-saving game state...', { 
-            gridSize: stateToSaveRef.current.gridSize,
-            money: stateToSaveRef.current.stats.money,
-            population: stateToSaveRef.current.stats.population
-          });
           saveGameState(stateToSaveRef.current);
           lastSaveTimeRef.current = Date.now();
           setHasExistingGame(true);
-        } catch (error) {
-          console.error('Failed to save game state:', error);
         } finally {
           setIsSaving(false);
         }
